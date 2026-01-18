@@ -101,14 +101,14 @@ frontend/index.html
 
 ## Screenshots
 
-### ✅ Generate Quiz Page
+### Generate Quiz Page
 ![Generate Quiz](wiki-quiz-project/screenshots/Screenshot%202026-01-18%20175729.png)
 
-### ✅ Quiz Result Page
+### Quiz Result Page
 ![Quiz Result](wiki-quiz-project/screenshots/Screenshot%202026-01-18%20175802.png)
 
-### ✅ Past Quizzes Page
+### Past Quizzes Page
 ![Past Quizzes](wiki-quiz-project/screenshots/Screenshot%202026-01-18%20175818.png)
 
-### ✅ Quiz Details Page
+### Quiz Details Page
 ![Quiz Details](wiki-quiz-project/screenshots/Screenshot%202026-01-18%20175840.png)

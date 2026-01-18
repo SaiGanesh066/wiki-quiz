@@ -1,290 +1,488 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Wiki Quiz Generator</title>
-  <style>
-    body { font-family: Arial, sans-serif; background:#f7f7f7; margin:0; }
-    .container { max-width: 1100px; margin: 24px auto; padding: 16px; }
-    h1 { margin: 0 0 16px; }
-    .tabs { display:flex; gap:10px; margin-bottom: 18px; }
-    .tabbtn {
-      padding: 10px 14px; border: 0; cursor:pointer; border-radius:10px;
-      background:#e9e9e9;
-    }
-    .tabbtn.active { background:#111; color:#fff; }
-    .card {
-      background:#fff; border-radius:14px; padding:16px; box-shadow:0 4px 18px rgba(0,0,0,.06);
-      margin-bottom:16px;
-    }
-    .row { display:flex; gap:10px; }
-    input {
-      flex:1; padding: 12px 12px; border:1px solid #ddd; border-radius:10px; outline:none;
-    }
-    button.primary {
-      padding: 12px 14px; border:0; border-radius:10px; cursor:pointer; background:#1a73e8; color:#fff;
-    }
-    button.primary:disabled { opacity:.5; cursor:not-allowed; }
-    .muted { color:#666; }
-    .tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
-    .tag { background:#f2f2f2; padding:6px 10px; border-radius:999px; font-size:13px; }
-    .qcard { border:1px solid #eee; border-radius:12px; padding:12px; margin:10px 0; }
-    ul { margin: 8px 0 0 18px; }
-    table { width:100%; border-collapse: collapse; }
-    th, td { padding: 10px; border-bottom:1px solid #eee; text-align:left; }
-    td.url { max-width:420px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    button.small { padding:8px 10px; border:0; border-radius:10px; cursor:pointer; background:#111; color:#fff; }
-    /* modal */
-    .overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,.5);
-      display:none; align-items:center; justify-content:center; padding:20px;
-    }
-    .modal {
-      width:min(920px, 95vw); max-height:90vh; overflow:auto;
-      background:#fff; border-radius:14px; padding:16px; position:relative;
-    }
-    .close {
-      position:absolute; top:12px; right:12px;
-      width:36px; height:36px; border-radius:12px;
-      border:0; cursor:pointer; background:#eee;
-      font-weight:bold;
-    }
-    .error { color:#b00020; font-weight:600; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Wiki Quiz Generator</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wiki Quiz Generator</title>
 
-    <div class="tabs">
-      <button id="tabGenerate" class="tabbtn active">Generate Quiz</button>
-      <button id="tabHistory" class="tabbtn">Past Quizzes</button>
-    </div>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f8fafc;
+        margin: 0;
+        padding: 0;
+        color: #111827;
+      }
 
-    <!-- TAB: Generate -->
-    <div id="generateView">
-      <div class="card">
-        <div class="row">
-          <input id="wikiUrl" placeholder="Enter Wikipedia URL (ex: https://en.wikipedia.org/wiki/Alan_Turing)" />
-          <button id="btnGenerate" class="primary">Generate Quiz</button>
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 50px 20px;
+      }
+
+      h1 {
+        font-size: 48px;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      .tabs {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+        margin-bottom: 30px;
+      }
+
+      .tab-btn {
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 700;
+        transition: 0.2s;
+        background: #e5e7eb;
+      }
+
+      .tab-btn.active {
+        background: #111827;
+        color: white;
+      }
+
+      .card {
+        background: white;
+        border-radius: 18px;
+        padding: 26px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        margin-top: 20px;
+      }
+
+      .input-row {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      input {
+        flex: 1;
+        min-width: 320px;
+        padding: 14px 15px;
+        font-size: 15px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        outline: none;
+      }
+
+      input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+      }
+
+      button.primary {
+        background: #2563eb;
+        border: none;
+        padding: 14px 22px;
+        border-radius: 12px;
+        cursor: pointer;
+        color: white;
+        font-weight: 800;
+        font-size: 15px;
+        transition: 0.2s;
+      }
+
+      button.primary:hover {
+        background: #1d4ed8;
+      }
+
+      .tip {
+        margin-top: 12px;
+        font-size: 15px;
+        color: #374151;
+      }
+
+      .status {
+        margin-top: 10px;
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .status.done {
+        color: #16a34a;
+      }
+
+      .status.error {
+        color: #dc2626;
+      }
+
+      /* Results */
+      .result h2 {
+        font-size: 32px;
+        margin-top: 0;
+      }
+
+      .label {
+        font-weight: 800;
+      }
+
+      .summary {
+        margin-top: 10px;
+        line-height: 1.6;
+      }
+
+      .section-title {
+        font-size: 22px;
+        font-weight: 800;
+        margin-top: 25px;
+        margin-bottom: 10px;
+      }
+
+      .quiz-box {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 18px;
+        margin-top: 12px;
+      }
+
+      .quiz-q {
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 10px;
+      }
+
+      .quiz-options {
+        margin: 0;
+        padding-left: 22px;
+      }
+
+      /* History Table */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid #e5e7eb;
+        padding: 12px 8px;
+        text-align: left;
+      }
+
+      th {
+        font-weight: 900;
+      }
+
+      .btn-small {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-weight: 800;
+      }
+
+      .btn-black {
+        background: #111827;
+        color: white;
+      }
+
+      .btn-black:hover {
+        opacity: 0.9;
+      }
+
+      /* ======= IMPROVED RELATED TOPICS UI ======= */
+      .related-topics {
+        margin-top: 28px;
+      }
+
+      .related-topics h3 {
+        font-size: 20px;
+        font-weight: 900;
+        margin-bottom: 14px;
+        color: #111827;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .chip {
+        padding: 9px 16px;
+        font-size: 14px;
+        font-weight: 700;
+        border-radius: 999px;
+        cursor: pointer;
+        user-select: none;
+
+        background: rgba(37, 99, 235, 0.08);
+        border: 1px solid rgba(37, 99, 235, 0.25);
+        color: #1d4ed8;
+
+        transition: all 0.2s ease;
+      }
+
+      .chip:hover {
+        background: rgba(37, 99, 235, 0.15);
+        border-color: rgba(37, 99, 235, 0.45);
+        transform: translateY(-2px);
+        box-shadow: 0px 6px 14px rgba(37, 99, 235, 0.2);
+      }
+
+      .chip:active {
+        transform: scale(0.96);
+      }
+
+      .chip::before {
+        content: "";
+        margin-right: 7px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Wiki Quiz Generator</h1>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button id="tabGenerate" class="tab-btn active">Generate Quiz</button>
+        <button id="tabHistory" class="tab-btn">Past Quizzes</button>
+      </div>
+
+      <!-- Generate -->
+      <div id="generateView" class="card">
+        <div class="input-row">
+          <input
+            id="wikiUrl"
+            placeholder="Enter Wikipedia URL (ex: https://en.wikipedia.org/wiki/Alan_Turing)"
+          />
+          <button class="primary" id="btnGenerate">Generate Quiz</button>
         </div>
-        <p class="muted" style="margin:10px 0 0;">
+
+        <div class="tip">
           Tip: Backend must be running at <b>http://127.0.0.1:8000</b>
-        </p>
-        <p id="genStatus" class="muted" style="margin:8px 0 0;"></p>
-        <p id="genError" class="error" style="margin:8px 0 0;"></p>
+        </div>
+
+        <div id="statusBox" class="status"></div>
       </div>
 
-      <div id="quizOutput"></div>
-    </div>
+      <!-- Result -->
+      <div id="resultView" class="card result" style="display: none"></div>
 
-    <!-- TAB: History -->
-    <div id="historyView" style="display:none;">
-      <div class="card">
-        <div class="row" style="justify-content:space-between; align-items:center;">
+      <!-- History -->
+      <div id="historyView" class="card" style="display: none">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
           <h2 style="margin:0;">History</h2>
-          <button id="btnRefresh" class="small">Refresh</button>
+          <button class="btn-small btn-black" id="btnRefresh">Refresh</button>
         </div>
-        <p id="histError" class="error"></p>
-        <div style="overflow:auto;">
-          <table id="histTable">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>URL</th>
-                <th>Created</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+
+        <div id="historyTableWrap"></div>
       </div>
     </div>
 
-  </div>
+    <script>
+      const API = "http://127.0.0.1:8000";
 
-  <!-- Modal -->
-  <div id="overlay" class="overlay">
-    <div class="modal" onclick="event.stopPropagation()">
-      <button class="close" id="btnClose">X</button>
-      <div id="modalContent"></div>
-    </div>
-  </div>
+      const tabGenerate = document.getElementById("tabGenerate");
+      const tabHistory = document.getElementById("tabHistory");
+      const generateView = document.getElementById("generateView");
+      const historyView = document.getElementById("historyView");
+      const resultView = document.getElementById("resultView");
 
-  <script>
-    const API = "http://127.0.0.1:8000";
+      const wikiUrl = document.getElementById("wikiUrl");
+      const btnGenerate = document.getElementById("btnGenerate");
+      const statusBox = document.getElementById("statusBox");
 
-    // elements
-    const tabGenerate = document.getElementById("tabGenerate");
-    const tabHistory = document.getElementById("tabHistory");
-    const generateView = document.getElementById("generateView");
-    const historyView = document.getElementById("historyView");
+      const btnRefresh = document.getElementById("btnRefresh");
+      const historyTableWrap = document.getElementById("historyTableWrap");
 
-    const wikiUrl = document.getElementById("wikiUrl");
-    const btnGenerate = document.getElementById("btnGenerate");
-    const genStatus = document.getElementById("genStatus");
-    const genError = document.getElementById("genError");
-    const quizOutput = document.getElementById("quizOutput");
-
-    const btnRefresh = document.getElementById("btnRefresh");
-    const histTableBody = document.querySelector("#histTable tbody");
-    const histError = document.getElementById("histError");
-
-    const overlay = document.getElementById("overlay");
-    const btnClose = document.getElementById("btnClose");
-    const modalContent = document.getElementById("modalContent");
-
-    function setTab(which) {
-      if (which === "generate") {
-        tabGenerate.classList.add("active");
-        tabHistory.classList.remove("active");
-        generateView.style.display = "";
-        historyView.style.display = "none";
-      } else {
-        tabHistory.classList.add("active");
-        tabGenerate.classList.remove("active");
-        historyView.style.display = "";
-        generateView.style.display = "none";
-        loadHistory();
+      function showStatus(text, type = "") {
+        statusBox.className = "status";
+        if (type) statusBox.classList.add(type);
+        statusBox.innerText = text;
       }
-    }
 
-    tabGenerate.onclick = () => setTab("generate");
-    tabHistory.onclick = () => setTab("history");
-
-    overlay.onclick = () => overlay.style.display = "none";
-    btnClose.onclick = () => overlay.style.display = "none";
-
-    function escapeHtml(str) {
-      return (str || "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-    }
-
-    function renderQuiz(data, targetEl) {
-      const sections = (data.sections || []).map(s => `<span class="tag">${escapeHtml(s)}</span>`).join("");
-      const related = (data.related_topics || []).map(s => `<span class="tag">${escapeHtml(s)}</span>`).join("");
-
-      const ent = data.key_entities || {people:[], organizations:[], locations:[]};
-      const entHtml = `
-        <p><b>People:</b> ${escapeHtml(ent.people?.join(", ") || "-")}</p>
-        <p><b>Organizations:</b> ${escapeHtml(ent.organizations?.join(", ") || "-")}</p>
-        <p><b>Locations:</b> ${escapeHtml(ent.locations?.join(", ") || "-")}</p>
-      `;
-
-      const qHtml = (data.quiz || []).map((q, idx) => `
-        <div class="qcard">
-          <p><b>Q${idx+1}:</b> ${escapeHtml(q.question)}</p>
-          <ul>
-            ${(q.options || []).map(op => `<li>${escapeHtml(op)}</li>`).join("")}
-          </ul>
-          <p><b>Answer:</b> ${escapeHtml(q.answer)}</p>
-          <p><b>Difficulty:</b> ${escapeHtml(q.difficulty)}</p>
-          <p><b>Explanation:</b> ${escapeHtml(q.explanation)}</p>
-        </div>
-      `).join("");
-
-      targetEl.innerHTML = `
-        <div class="card">
-          <h2 style="margin-top:0;">${escapeHtml(data.title)}</h2>
-          <p><b>URL:</b> ${escapeHtml(data.url)}</p>
-          <p><b>Summary:</b> ${escapeHtml(data.summary)}</p>
-
-          <h3>Sections</h3>
-          <div class="tags">${sections || "<span class='muted'>No sections found</span>"}</div>
-
-          <h3>Key Entities</h3>
-          <div>${entHtml}</div>
-
-          <h3>Quiz</h3>
-          ${qHtml || "<p class='muted'>No questions generated.</p>"}
-
-          <h3>Related Topics</h3>
-          <div class="tags">${related || "<span class='muted'>None</span>"}</div>
-        </div>
-      `;
-    }
-
-    async function generateQuiz() {
-      genError.textContent = "";
-      quizOutput.innerHTML = "";
-      const url = wikiUrl.value.trim();
-      if (!url) return;
-
-      btnGenerate.disabled = true;
-      genStatus.textContent = "Generating... Please wait";
-      try {
-        const res = await fetch(`${API}/generate`, {
-          method: "POST",
-          headers: {"Content-Type":"application/json"},
-          body: JSON.stringify({url})
-        });
-        const data = await res.json();
-
-        if (!res.ok) {
-          genError.textContent = data.detail || "Error generating quiz";
-          genStatus.textContent = "";
+      function showTab(tab) {
+        if (tab === "generate") {
+          tabGenerate.classList.add("active");
+          tabHistory.classList.remove("active");
+          generateView.style.display = "block";
+          historyView.style.display = "none";
         } else {
-          genStatus.textContent = "Done ✅";
-          renderQuiz(data, quizOutput);
+          tabHistory.classList.add("active");
+          tabGenerate.classList.remove("active");
+          generateView.style.display = "none";
+          historyView.style.display = "block";
+          loadHistory();
         }
-      } catch (e) {
-        genError.textContent = "Backend not reachable. Run uvicorn main:app --reload";
-        genStatus.textContent = "";
-      } finally {
-        btnGenerate.disabled = false;
       }
-    }
 
-    btnGenerate.onclick = generateQuiz;
+      tabGenerate.onclick = () => showTab("generate");
+      tabHistory.onclick = () => showTab("history");
 
-    async function loadHistory() {
-      histError.textContent = "";
-      histTableBody.innerHTML = "";
-      try {
-        const res = await fetch(`${API}/history`);
-        const data = await res.json();
-        if (!res.ok) {
-          histError.textContent = data.detail || "Error loading history";
-          return;
-        }
-        if (!data.length) {
-          histTableBody.innerHTML = `<tr><td colspan="5" class="muted">No past quizzes found. Generate one first.</td></tr>`;
+      btnGenerate.onclick = async () => {
+        const url = wikiUrl.value.trim();
+        if (!url) {
+          showStatus("Please enter a wikipedia URL", "error");
           return;
         }
 
-        histTableBody.innerHTML = data.map(item => `
-          <tr>
-            <td>${item.id}</td>
-            <td>${escapeHtml(item.title)}</td>
-            <td class="url" title="${escapeHtml(item.url)}">${escapeHtml(item.url)}</td>
-            <td>${new Date(item.created_at).toLocaleString()}</td>
-            <td><button class="small" onclick="openDetails(${item.id})">Details</button></td>
-          </tr>
-        `).join("");
-      } catch (e) {
-        histError.textContent = "Backend not reachable.";
-      }
-    }
+        showStatus("Generating quiz...", "");
+        resultView.style.display = "none";
 
-    btnRefresh.onclick = loadHistory;
+        try {
+          const res = await fetch(`${API}/generate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url }),
+          });
 
-    window.openDetails = async function(id) {
-      modalContent.innerHTML = "<p class='muted'>Loading...</p>";
-      overlay.style.display = "flex";
-      try {
-        const res = await fetch(`${API}/quiz/${id}`);
-        const data = await res.json();
-        if (!res.ok) {
-          modalContent.innerHTML = `<p class="error">${escapeHtml(data.detail || "Error")}</p>`;
-          return;
+          const data = await res.json();
+
+          if (!res.ok) {
+            showStatus(data.detail || "Error occurred", "error");
+            return;
+          }
+
+          showStatus("Done ✅", "done");
+          renderResult(data);
+        } catch (e) {
+          showStatus("Backend not reachable ❌", "error");
         }
-        renderQuiz(data, modalContent);
-      } catch (e) {
-        modalContent.innerHTML = "<p class='error'>Backend not reachable.</p>";
+      };
+
+      function escapeHtml(str) {
+        return String(str)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
       }
-    }
-  </script>
-</body>
+
+      function renderResult(data) {
+        const quiz = data.quiz || [];
+        const keyEntities = data.key_entities || {};
+        const topics = data.related_topics || [];
+
+        resultView.style.display = "block";
+
+        resultView.innerHTML = `
+          <h2>${escapeHtml(data.title)}</h2>
+
+          <p><span class="label">URL:</span> <a href="${escapeHtml(data.url)}" target="_blank">${escapeHtml(data.url)}</a></p>
+
+          <div class="summary">
+            <p class="label">Summary:</p>
+            <p>${escapeHtml(data.summary || "")}</p>
+          </div>
+
+          <div class="section-title">Sections</div>
+          <p>${(data.sections && data.sections.length) ? data.sections.map(s => escapeHtml(s)).join(", ") : "No sections found"}</p>
+
+          <div class="section-title">Key Entities</div>
+          <p><span class="label">People:</span> ${(keyEntities.people || []).map(escapeHtml).join(", ")}</p>
+          <p><span class="label">Organizations:</span> ${(keyEntities.organizations || []).map(escapeHtml).join(", ")}</p>
+          <p><span class="label">Locations:</span> ${(keyEntities.locations || []).map(escapeHtml).join(", ")}</p>
+
+          <div class="section-title">Quiz</div>
+          ${quiz.map((q, idx) => `
+            <div class="quiz-box">
+              <div class="quiz-q">Q${idx+1}: ${escapeHtml(q.question)}</div>
+              <ul class="quiz-options">
+                <li>A) ${escapeHtml(q.options.A)}</li>
+                <li>B) ${escapeHtml(q.options.B)}</li>
+                <li>C) ${escapeHtml(q.options.C)}</li>
+                <li>D) ${escapeHtml(q.options.D)}</li>
+              </ul>
+              <p><span class="label">Answer:</span> ${escapeHtml(q.answer)}</p>
+            </div>
+          `).join("")}
+
+          <div class="related-topics">
+            <h3>Related Topics</h3>
+            <div class="chips">
+              ${(topics.length ? topics : []).map(t => `<span class="chip">${escapeHtml(t)}</span>`).join("")}
+            </div>
+          </div>
+        `;
+
+        // Chip click -> Wikipedia
+        document.querySelectorAll(".chip").forEach(chip => {
+          chip.addEventListener("click", () => {
+            const topic = chip.innerText.replace("✨", "").trim();
+            const wikiTopic = topic.replaceAll(" ", "_");
+            window.open(`https://en.wikipedia.org/wiki/${wikiTopic}`, "_blank");
+          });
+        });
+      }
+
+      async function loadHistory() {
+        try {
+          const res = await fetch(`${API}/history`);
+          const list = await res.json();
+
+          if (!res.ok) {
+            historyTableWrap.innerHTML = `<p style="color:red;">Error loading history</p>`;
+            return;
+          }
+
+          if (!list.length) {
+            historyTableWrap.innerHTML = `<p>No history found</p>`;
+            return;
+          }
+
+          historyTableWrap.innerHTML = `
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>URL</th>
+                  <th>Created</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                ${list.map(item => `
+                  <tr>
+                    <td>${item.id}</td>
+                    <td>${escapeHtml(item.title)}</td>
+                    <td><a href="${escapeHtml(item.url)}" target="_blank">${escapeHtml(item.url)}</a></td>
+                    <td>${escapeHtml(item.created_at)}</td>
+                    <td><button class="btn-small btn-black" onclick="openDetails(${item.id})">Details</button></td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          `;
+        } catch (e) {
+          historyTableWrap.innerHTML = `<p style="color:red;">Backend not reachable</p>`;
+        }
+      }
+
+      // Details function
+      window.openDetails = async function (id) {
+        try {
+          const res = await fetch(`${API}/quiz/${id}`);
+          const data = await res.json();
+
+          if (!res.ok) {
+            alert(data.detail || "Error fetching quiz");
+            return;
+          }
+
+          showTab("generate");
+          renderResult(data);
+          showStatus("Loaded from history ✅", "done");
+        } catch {
+          alert("Backend not reachable");
+        }
+      };
+
+      btnRefresh.onclick = loadHistory;
+    </script>
+  </body>
 </html>

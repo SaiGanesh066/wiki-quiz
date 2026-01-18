@@ -98,5 +98,3 @@ http://127.0.0.1:8000
 Frontend Setup:
 Open the frontend file:
 frontend/index.html
-
-<img width="1907" height="894" alt="image" src="https://github.com/user-attachments/assets/4dd0fbbd-f180-41f4-b7ec-be23a25de8a6" />
